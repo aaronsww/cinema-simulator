@@ -33,7 +33,7 @@ var seatObjects = [];
 
 // Load the model
 const loader = new GLTFLoader();
-loader.load('untitled.glb', function (gltf) {
+loader.load('setting.glb', function (gltf) {
  
 
   // Scale and position the model (if necessary)
