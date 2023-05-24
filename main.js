@@ -33,7 +33,7 @@ var seatObjects = [];
 
 // Load the model
 const loader = new GLTFLoader();
-loader.load('setting.glb', function (gltf) {
+loader.load('yellow-setting.glb', function (gltf) {
  
 
   // Scale and position the model (if necessary)
@@ -144,6 +144,6 @@ screen.rotation.y = Math.PI;
 
 scene.add(screen);
  
-screen.position.set(0, 0.5, 1);
+screen.position.set(0, 0.64, 0.32);
 
 animate();
