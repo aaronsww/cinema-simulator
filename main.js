@@ -17,9 +17,9 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-renderer.domElement.addEventListener('mousedown', function (event) {
-  console.log('Mouse event detected:', event);
-});
+// renderer.domElement.addEventListener('mousedown', function (event) {
+//   console.log('Mouse event detected:', event);
+// });
 
 // Add camera controls
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -57,7 +57,6 @@ loader.load('setting.glb', function (gltf) {
     }
   });
 
-  
 });
 
 // Create a raycaster
@@ -92,12 +91,15 @@ function onClick(event) {
 
 // Function to move the camera to the seat position
 function moveCameraToSeat(seatPosition) {
-  const distance = 1; // Adjust this value to control the distance
+  const distance = seatPosition.distanceTo(camera.position);
+
 
   // Calculate the camera position based on the seat position and distance
   const cameraPosition = new THREE.Vector3().copy(seatPosition);
-  const cameraOffset = new THREE.Vector3(0, 0, distance);
-  const cameraDirection = new THREE.Vector3(0, -0.2, -1);
+  const cameraOffset = new THREE.Vector3(0, 0, 0);
+  const cameraDirection = new THREE.Vector3().subVectors(seatPosition, cameraPosition).normalize();
+  cameraDirection.setY(cameraDirection.y - 0.18); 
+
   cameraDirection.applyQuaternion(camera.quaternion); // Apply the camera's rotation
   cameraOffset.applyQuaternion(camera.quaternion); // Apply the camera's rotation
   cameraDirection.multiplyScalar(distance);
@@ -107,8 +109,6 @@ function moveCameraToSeat(seatPosition) {
   camera.position.copy(cameraPosition);
   camera.lookAt(seatPosition);
 }
-
-
 
 
 // Render the scene
@@ -147,4 +147,3 @@ scene.add(screen);
 screen.position.set(0, 0.5, 1);
 
 animate();
-
