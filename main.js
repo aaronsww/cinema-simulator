@@ -8,8 +8,9 @@ const scene = new THREE.Scene();
 // Create a camera
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.z = 1;
-camera.near = 1; // Increase the near clipping plane value
-camera.fov = 40; // Adjust the camera's field of view
+camera.position.y = 0.5;
+// camera.near = 2; // Increase the near clipping plane value
+camera.fov = 60; // Adjust the camera's field of view
 camera.updateProjectionMatrix(); // Update the camera's projection matrix
 
 // Create a renderer
@@ -17,9 +18,9 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// renderer.domElement.addEventListener('mousedown', function (event) {
-//   console.log('Mouse event detected:', event);
-// });
+renderer.domElement.addEventListener('mousedown', function (event) {
+  console.log('Mouse event detected:', event);
+});
 
 // Add camera controls
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -88,44 +89,7 @@ function onClick(event) {
   }
 }
 
-
-// Function to move the camera to the seat position
-function moveCameraToSeat(seatPosition) {
-  const distance = seatPosition.distanceTo(camera.position);
-
-
-  // Calculate the camera position based on the seat position and distance
-  const cameraPosition = new THREE.Vector3().copy(seatPosition);
-  const cameraOffset = new THREE.Vector3(0, 0, 0);
-  const cameraDirection = new THREE.Vector3().subVectors(seatPosition, cameraPosition).normalize();
-  cameraDirection.setY(cameraDirection.y - 0.18); 
-
-  cameraDirection.applyQuaternion(camera.quaternion); // Apply the camera's rotation
-  cameraOffset.applyQuaternion(camera.quaternion); // Apply the camera's rotation
-  cameraDirection.multiplyScalar(distance);
-  cameraPosition.add(cameraOffset).add(cameraDirection);
-
-  // Set the camera position and look at the seat position
-  camera.position.copy(cameraPosition);
-  camera.lookAt(seatPosition);
-}
-
-
-// Render the scene
-function animate() {
-  requestAnimationFrame(animate);
-
-  // Rotate the model (if necessary)
-  if (scene.children.length > 0) {
-    scene.children[0].rotation.y += 0.01;
-  }
-
-  // Update the controls
-  controls.update();
-
-  renderer.render(scene, camera);
-}
-
+//creating theatre screen
 const width = 1.5; // Set the desired width of the plane
 const height = 1;
 
@@ -145,5 +109,60 @@ screen.rotation.y = Math.PI;
 scene.add(screen);
  
 screen.position.set(0, 0.64, 0.32);
+
+const screenCenterX = screen.position.x + (width / 2);
+const screenCenterY = screen.position.y + (height / 2);
+const screenCenterZ = screen.position.z;
+
+// Function to move the camera to the seat position
+function moveCameraToSeat(seatPosition) {
+  console.log(seatPosition, "clicked")
+
+  // Calculate the camera position based on the seat position and distance
+  camera.position.copy(seatPosition);
+
+  console.log("camera",camera.position)
+
+  // Calculate the direction vector from the seat position to the center of the screen
+  const cameraDirection = new THREE.Vector3(
+    screenCenterX - seatPosition.x,
+    screenCenterY - seatPosition.y,
+    screenCenterZ - seatPosition.z
+  ).normalize();
+  
+  // Calculate the angle in radians using Math.atan2
+  const angle = Math.atan2(cameraDirection.x, cameraDirection.z);
+
+  // Set the camera's rotation around the y-axis based on the calculated angle
+  camera.rotation.y = angle;
+}
+
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+// Listen for window resize events
+window.addEventListener('resize', onWindowResize);
+
+
+// Render the scene
+function animate() {
+  requestAnimationFrame(animate);
+
+  // Rotate the model (if necessary)
+  if (scene.children.length > 0) {
+    scene.children[0].rotation.y += 0.01;
+  }
+
+  // Update the controls
+  controls.update();
+
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  renderer.render(scene, camera);
+}
+
 
 animate();
